@@ -1,7 +1,7 @@
-export function validateSchemaCakes(schema) {
+export function validateSchema(schema) {
   return async function (req, res, next) {
     const { error } = schema.validate(req.body);
-    console.log(req.body);
+
     try {
       if (error)
         return res
