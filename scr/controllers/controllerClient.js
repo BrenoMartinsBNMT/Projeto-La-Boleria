@@ -13,3 +13,29 @@ export async function ControllerClient(req, res) {
     return res.status(500).send(e);
   }
 }
+
+export async function controllerGetOrdersByClientId(req, res) {
+  try {
+    const { id } = req.params;
+    const infosOrder = await db.query(
+      `SELECT user_id,quantity,create_at,total_price, cakes.name 
+      FROM orders 
+      JOIN cakes 
+      ON orders.cake_id = cakes.id 
+      JOIN clients ON clients.id = $1
+  `,
+      [id]
+    );
+    let infosOrderJson = [];
+    infosOrder.rows.map((e) => {
+      infosOrderJson.push({
+        orderId: e.user_id,
+        quantity: e.quantity,
+        createdAt: e.create_at,
+        totalPrice: e.total_price,
+        cakeName: e.name,
+      });
+    });
+    res.send(infosOrderJson);
+  } catch {}
+}

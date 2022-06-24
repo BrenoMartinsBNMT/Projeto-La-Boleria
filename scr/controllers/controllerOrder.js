@@ -95,3 +95,43 @@ export async function controllerGetOrderByDate(req, res, next) {
     return res.send(e);
   }
 }
+
+export async function controllerGetOrdersByOrderId(req, res) {
+  try {
+    const { id } = req.params;
+
+    const infos = await db.query(
+      "SELECT clients.id AS client_id ,clients.name AS user ,clients.address,clients.phone,cakes.id AS cakes_id,cakes.name,cakes.price,cakes.description,cakes.image ,orders.create_at, orders.quantity,orders.total_price FROM orders JOIN clients ON clients.id = orders.user_id JOIN cakes ON cakes.id = orders.cake_id AND orders.id = $1",
+      [id]
+    );
+    console.log(infos.rows.length === 0);
+    if (infos.rows.length === 0) {
+      return res.sendStatus(404);
+    }
+    const infosJson = [];
+    infos.rows.map((element) => {
+      infosJson.push({
+        client: {
+          id: element.client_id,
+          name: element.user,
+          address: element.address,
+          phone: element.phone,
+        },
+        cake: {
+          id: element.cakes_id,
+          cake: element.name,
+          price: element.price,
+          description: element.description,
+          image: element.image,
+        },
+
+        createAt: element.create_at,
+        quantity: element.quantity,
+        totalPrice: element.total_price,
+      });
+    });
+    res.send(infosJson);
+  } catch (e) {
+    return res.send(e);
+  }
+}
